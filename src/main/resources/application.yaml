@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: store
+  datasource:
+    url: jdbc:mysql://localhost:3307/store_api?createDatabaseIfNotExist=true
+    username: root
+    password: gowtham
+  jpa:
+    show-sql: true
+    auto-ddl: validate
+  jwt:
+    secret: ${JWT_SECRET}
