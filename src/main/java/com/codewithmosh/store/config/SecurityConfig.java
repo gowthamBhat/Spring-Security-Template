@@ -1,5 +1,6 @@
 package com.codewithmosh.store.config;
 
+import com.codewithmosh.store.filters.JwtAuthenticationFilter;
 import com.codewithmosh.store.service.UserAuthHelper;
 import com.codewithmosh.store.service.UserService;
 import lombok.AllArgsConstructor;
@@ -15,11 +16,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @AllArgsConstructor
 @Configuration
 public class SecurityConfig {
-    UserAuthHelper userAuthService;
+   private final UserAuthHelper userAuthService;
+   private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     //  java prebuilt BCrypt class to encode classes
     @Bean
@@ -51,11 +54,12 @@ public class SecurityConfig {
 
         // Allow specific HTTP requests without authentication or authorization checks
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/auth/signup","auth/validate", "/auth/login","/user/get-all","/user").permitAll() // public endpoints
+                .requestMatchers("/auth/signup", "/auth/login","/user/get-all","/user").permitAll() // public endpoints
                 .anyRequest().authenticated() // everything else requires authentication
-        );
+        )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        //adding custom filter and configuring it to execute first in order
 
-        // Build and return the SecurityFilterChain
         return http.build();
     }
 }

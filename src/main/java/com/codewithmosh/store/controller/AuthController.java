@@ -12,7 +12,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -29,6 +32,23 @@ public class AuthController {
         return jwtService.verifyToken(authToken);
     }
 
+    @GetMapping("/currentuser")
+    public ResponseEntity<?> currentLoggedInUser(){
+
+        // we don't have to manually retrieve the auth header and decode the user details in it, every request passed through decurity filter
+        // it is validated and decoded, valid requests data is stored in SecurityContextHolder object
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = (Long) authentication.getPrincipal();
+
+     User user = userService.findUserById(userId).orElse(null);
+
+     if(user==null){
+         return ResponseEntity.notFound().build();
+     }
+
+    return ResponseEntity.ok(user);
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> userLoginHandler(@RequestBody UserLoginRequestDTO userDTO){
         System.out.println("email and password got from form:"+userDTO.getEmail() +" , "+userDTO.getPassword());
@@ -40,9 +60,10 @@ public class AuthController {
                             userDTO.getPassword() // credentials
                     )
             );
+     User user = userService.getUserByEmailid(userDTO.getEmail()).orElseThrow();
 
             // If we reach here, authentication was successful!
-        String token =  jwtService.generateToekens(userDTO.getEmail());
+        String token =  jwtService.generateTokens(user);
 
             return ResponseEntity.ok(new JwtResponse(token));
         } catch (AuthenticationException e) {

@@ -22,7 +22,6 @@ public class UserController {
 
   private final UserService userService;
 
-
     @GetMapping
     ResponseEntity<Map<String,String>> AccessCheck(){
 
