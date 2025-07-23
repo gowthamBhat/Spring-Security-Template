@@ -14,15 +14,15 @@ import java.util.Collections;
 
 @AllArgsConstructor
 @Service
-public class UserAuthHelper implements UserDetailsService{
-private final UserRepository userRepository;
+public class UserAuthHelper implements UserDetailsService {
+    private final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-   User user =      userRepository.findByEmail(email).orElseThrow(()-> new UsernameNotFoundException("User not found"));
-   System.out.println("user logged as: "+user.getEmail());
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        System.out.println("user logged as: " + user.getEmail());
 
-        return new org.springframework.security.core.userdetails.User(user.getEmail(),user.getPassword(), Collections.emptyList());
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), Collections.emptyList());
     }
 }

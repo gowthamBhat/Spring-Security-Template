@@ -20,21 +20,20 @@ import java.util.Map;
 @AllArgsConstructor
 public class UserController {
 
-  private final UserService userService;
+    private final UserService userService;
 
     @GetMapping
-    ResponseEntity<Map<String,String>> AccessCheck(){
+    ResponseEntity<Map<String, String>> AccessCheck() {
 
-        return ResponseEntity.ok().body(Map.of("status","Access Passed"));
+        return ResponseEntity.ok().body(Map.of("status", "Access Passed"));
     }
-    @GetMapping("/get-all")
-    ResponseEntity<List<User>> listAlltheUsers(){
 
-      List<User> users =   userService.getAlltheUsers();
+    @GetMapping("/get-all")
+    ResponseEntity<List<User>> listAlltheUsers() {
+
+        List<User> users = userService.getAlltheUsers();
         return ResponseEntity.ok().body(users);
     }
-
-
 
 
 //    @PostMapping("/login")

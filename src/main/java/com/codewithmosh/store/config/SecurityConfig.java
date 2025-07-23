@@ -21,12 +21,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @AllArgsConstructor
 @Configuration
 public class SecurityConfig {
-   private final UserAuthHelper userAuthService;
-   private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final UserAuthHelper userAuthService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     //  java prebuilt BCrypt class to encode classes
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -54,9 +54,9 @@ public class SecurityConfig {
 
         // Allow specific HTTP requests without authentication or authorization checks
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/auth/signup", "/auth/login","/user/get-all","/user").permitAll() // public endpoints
-                .anyRequest().authenticated() // everything else requires authentication
-        )
+                        .requestMatchers("/auth/signup", "/auth/login", "/user/get-all", "/user").permitAll() // public endpoints
+                        .anyRequest().authenticated() // everything else requires authentication
+                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         //adding custom filter and configuring it to execute first in order
 

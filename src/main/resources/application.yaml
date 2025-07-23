@@ -10,3 +10,5 @@ spring:
     auto-ddl: validate
   jwt:
     secret: ${JWT_SECRET}
+    accessTokenExpiration: 300 # 5 mins
+    refreshTokenEpiration: 604800 #7 days
