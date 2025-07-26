@@ -2,6 +2,7 @@ package com.codewithmosh.store.controller;
 
 import com.codewithmosh.store.DTO.JwtResponse;
 import com.codewithmosh.store.DTO.UserLoginRequestDTO;
+import com.codewithmosh.store.DTO.UserSIgnUpRequestDTO;
 import com.codewithmosh.store.config.JwtConfig;
 import com.codewithmosh.store.entities.User;
 import com.codewithmosh.store.service.JwtService;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -93,10 +95,23 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/signup")
-    ResponseEntity<User> saveApplicationUser(@RequestBody User user) {
+    @PostMapping("/refresh")
+    ResponseEntity<JwtResponse>  refresh(@CookieValue(value = "refreshToken") String refreshToken){
+          if(!jwtService.verifyToken(refreshToken)){
+              return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+          }
+          var userid = jwtService.getUserIdFromToken(refreshToken);
+          var user = userService.findUserById(userid).orElseThrow();
+          var accessToken = jwtService.generateAccessToken(user);
 
-        User UserSaved = userService.saveUser(user);
-        return ResponseEntity.ok().body(UserSaved);
+          return ResponseEntity.ok(new JwtResponse(accessToken));
+    }
+
+
+    @PostMapping("/signup")
+    ResponseEntity<User> saveApplicationUser(@RequestBody UserSIgnUpRequestDTO user) {
+
+        User userSaved = userService.registerNewUser(user);
+        return ResponseEntity.ok().body(userSaved);
     }
 }

@@ -1,11 +1,15 @@
 package com.codewithmosh.store.config;
 
+import com.codewithmosh.store.entities.RoleName;
 import com.codewithmosh.store.filters.JwtAuthenticationFilter;
 import com.codewithmosh.store.service.UserAuthHelper;
 import com.codewithmosh.store.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -16,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @AllArgsConstructor
@@ -54,11 +59,19 @@ public class SecurityConfig {
 
         // Allow specific HTTP requests without authentication or authorization checks
         http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/signup", "/auth/login", "/user/get-all", "/user").permitAll() // public endpoints
+                        .requestMatchers("/admin/**").hasRole(RoleName.ADMIN.name())
+                        .requestMatchers("/auth/signup", "/auth/login", "/user/get-all", "/user", "/auth/refresh").permitAll() // public endpoints
                         .anyRequest().authenticated() // everything else requires authentication
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        //adding custom filter and configuring it to execute first in order
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                //adding custom filter and configuring it to execute first in order
+                .exceptionHandling(c ->{
+
+                            c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+                            c.accessDeniedHandler(((request, response, accessDeniedException) ->
+                                    response.setStatus(HttpStatus.FORBIDDEN.value())));
+                        }
+                        );
 
         return http.build();
     }
