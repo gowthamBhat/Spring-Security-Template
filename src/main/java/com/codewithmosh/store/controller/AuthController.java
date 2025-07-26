@@ -10,7 +10,6 @@ import com.codewithmosh.store.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,8 +18,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -72,7 +69,7 @@ public class AuthController {
             String token = jwtService.generateAccessToken(user);
 
             // now we need to send another token as a cookie, that can be used to refresh the token after expiration
-            String refreshToken = jwtService.generateRefereshToken(user);
+            String refreshToken = jwtService.generateRefreshToken(user);
             Cookie cookie = new Cookie("refreshToken", refreshToken);
 
             // this makes it the cookie not accessible for JS in browser
